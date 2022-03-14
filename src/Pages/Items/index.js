@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { Card, Button } from 'antd';
-import { useOutletContext } from "react-router-dom";
+import { Card, Button, Alert, Modal } from 'antd';
+import { useOutletContext, useNavigate } from "react-router-dom";
 import { ethers } from 'ethers';
 import { WalletOutlined, DollarCircleOutlined } from '@ant-design/icons';
 
@@ -8,9 +8,23 @@ import { WalletOutlined, DollarCircleOutlined } from '@ant-design/icons';
 const Items = () => {
     const [items, setItems] = useState([])
     const { contractAddress, contractABI } = useOutletContext()
+    const navigate = useNavigate()
 
-    const buy = async (index) => {
-        console.log("Buy", index)
+    function success() {
+        Modal.success({
+            content: 'New item buyed',
+            onOk() { navigate("/items") }
+        });
+    }
+
+    const buy = async (index, value) => {
+        const provider = new ethers.providers.Web3Provider(window.ethereum)
+        const signer = provider.getSigner()
+        const MPContract = new ethers.Contract(contractAddress, contractABI, signer)
+        const buyItem = await MPContract.buyItem(index)
+        if (buyItem) {
+            success()
+        }
     }
 
     const getInfo = async () => {
@@ -30,7 +44,6 @@ const Items = () => {
             {
                 items.map((item, index) => {
                     const { title, url, info, sold, owner, value } = item
-                    console.log(item)
                     return (
                         <Card
                             key={index}
@@ -43,7 +56,10 @@ const Items = () => {
                             <p><WalletOutlined /> {owner}</p>
                             <p><DollarCircleOutlined /> {ethers.utils.formatEther(value)}</p>
                             {
-                                !sold && (<Button block onClick={() => buy(index)}>Buy</Button>)
+                                !sold && (<Button block onClick={() => buy(index, ethers.utils.formatEther(value))}>Buy</Button>)
+                            }
+                            {
+                                sold && <Alert message="Already sold!" type="warning" showIcon />
                             }
 
                         </Card>
