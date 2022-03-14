@@ -1,23 +1,21 @@
-import logo from './logo.svg';
+import { Outlet, Link } from "react-router-dom";
+import { Layout, Menu } from 'antd';
+
+
 import './App.css';
+import 'antd/dist/antd.css';
 
 function App() {
+  const { Header } = Layout;
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="Apsp">
+      <Header className="header">
+        <Menu theme="dark" mode="horizontal">
+          <Menu.Item key="1"><Link to="items">Items</Link></Menu.Item>
+          <Menu.Item key="2"><Link to="new-item">Create you item</Link></Menu.Item>
+        </Menu>
+      </Header>
+      <Outlet />
     </div>
   );
 }
