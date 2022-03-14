@@ -1,38 +1,56 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Card, Button } from 'antd';
+import { useOutletContext } from "react-router-dom";
+import { ethers } from 'ethers';
 import { WalletOutlined, DollarCircleOutlined } from '@ant-design/icons';
 
 
 const Items = () => {
+    const [items, setItems] = useState([])
+    const { contractAddress, contractABI } = useOutletContext()
 
-    const buy = async () => {
-        console.log("BUy")
+    const buy = async (index) => {
+        console.log("Buy", index)
     }
+
+    const getInfo = async () => {
+        const provider = new ethers.providers.Web3Provider(window.ethereum)
+        const signer = provider.getSigner()
+        const MPContract = new ethers.Contract(contractAddress, contractABI, signer)
+        const allItems = await MPContract.allItems()
+        setItems(allItems)
+    }
+
+    useEffect(async () => {
+        getInfo();
+    }, [])
 
     return (
         <div className='container'>
-            <Card
-                hoverable
-                style={{ width: 240, margin: "0px 10px" }}
-                cover={<img alt="example" src="https://images.pexels.com/photos/735911/pexels-photo-735911.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260" />}
-            >
-                <p>Keyboard</p>
-                <p>Amazing product!</p>
-                <p><WalletOutlined /> 0x89976</p>
-                <p><DollarCircleOutlined /> 0.5</p>
-                <Button block>Buy</Button>
-            </Card>
-            <Card
-                hoverable
-                style={{ width: 240 }}
-                cover={<img alt="example" src="https://images.pexels.com/photos/735911/pexels-photo-735911.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260" />}
-            >
-                <p>Keyboard</p>
-                <p>Amazing product!</p>
-                <p><WalletOutlined /> 0x89976</p>
-                <p><DollarCircleOutlined /> 0.5</p>
-                <Button block onClick={buy}>Buy</Button>
-            </Card>
+            {
+                items.map((item, index) => {
+                    const { title, url, info, sold, owner, value } = item
+                    console.log(item)
+                    return (
+                        <Card
+                            key={index}
+                            hoverable
+                            style={{ width: 340, margin: "0px 10px", border: "1px solid green" }}
+                            cover={<img alt={title} src={info} />}
+                        >
+                            <p>{title}</p>
+                            <p>{url}</p>
+                            <p><WalletOutlined /> {owner}</p>
+                            <p><DollarCircleOutlined /> {ethers.utils.formatEther(value)}</p>
+                            {
+                                !sold && (<Button block onClick={() => buy(index)}>Buy</Button>)
+                            }
+
+                        </Card>
+                    )
+                })
+            }
+
         </div>
     )
 }

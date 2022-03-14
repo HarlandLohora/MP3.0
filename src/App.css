@@ -7,6 +7,18 @@
   height: 100vh;
 }
 
+.header{
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.MP3{
+  color: #FFF;
+  font-size: 24px;
+}
+
 .container{
   width: 100%;
   display: flex;
